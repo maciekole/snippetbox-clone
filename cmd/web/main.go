@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+// Define application struct to hold the application-wide dependencies for the web app
+type application struct {
+	logger *slog.Logger
+}
+
 func main() {
 	// Define a new command-line flag with name 'addr', a default value of ":8080"
 	addr := flag.String("addr", ":8080", "HTTP network address")
@@ -25,6 +30,11 @@ func main() {
 		ReplaceAttr: nil,
 	}))
 
+	// Init a new instance of application struct containing the dependencies
+	app := &application{
+		logger: logger,
+	}
+
 	mux := http.NewServeMux()
 
 	// Create a file server which servers files from static
@@ -32,9 +42,9 @@ func main() {
 
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/snippet/view", app.snippetView)
+	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
 	logger.Info("starting server on ", "addr", *addr)
 
