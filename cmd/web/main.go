@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -17,6 +18,13 @@ func main() {
 	// encountered during parsing the application will be terminated.
 	flag.Parse()
 
+	// Use the slog.New() function to init a new structured logger, which writes to STDOUT with default settings
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource:   true,
+		Level:       slog.LevelDebug,
+		ReplaceAttr: nil,
+	}))
+
 	mux := http.NewServeMux()
 
 	// Create a file server which servers files from static
@@ -28,8 +36,11 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Printf("starting server on %s", *addr)
+	logger.Info("starting server on ", "addr", *addr)
 
 	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+
+	// no logger.Fatal(), closest solution is to message Error and call os.Exit(1)
+	logger.Error(err.Error())
+	os.Exit(1)
 }
