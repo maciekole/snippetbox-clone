@@ -35,20 +35,20 @@ func main() {
 		logger: logger,
 	}
 
-	mux := http.NewServeMux()
+	//mux := http.NewServeMux()
 
 	// Create a file server which servers files from static
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	//fileServer := http.FileServer(http.Dir("./ui/static/"))
 
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet/view", app.snippetView)
-	mux.HandleFunc("/snippet/create", app.snippetCreate)
+	//mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	//
+	//mux.HandleFunc("/", app.home)
+	//mux.HandleFunc("/snippet/view", app.snippetView)
+	//mux.HandleFunc("/snippet/create", app.snippetCreate)
 
 	logger.Info("starting server on ", "addr", *addr)
 
-	err := http.ListenAndServe(*addr, mux)
+	err := http.ListenAndServe(*addr, app.routes())
 
 	// no logger.Fatal(), closest solution is to message Error and call os.Exit(1)
 	logger.Error(err.Error())
