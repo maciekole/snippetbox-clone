@@ -10,13 +10,16 @@ import (
 	"net/http"
 	"os"
 
+	"snippetbox.maciekole.net/internal/models"
+
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv"
 )
 
 // Define application struct to hold the application-wide dependencies for the web app
 type application struct {
-	logger *slog.Logger
+	logger   *slog.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -68,7 +71,8 @@ func main() {
 
 	// Init a new instance of application struct containing the dependencies
 	app := &application{
-		logger: logger,
+		logger:   logger,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	//mux := http.NewServeMux()
