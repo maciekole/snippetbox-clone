@@ -67,7 +67,13 @@ func main() {
 
 	// We also defer a call to db.Close(), so that the connection pool is closed
 	// before the main() function exits.
-	defer db.Close()
+	// defer db.Close()
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+
+		}
+	}(db)
 
 	// Init a new instance of application struct containing the dependencies
 	app := &application{
