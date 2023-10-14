@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"snippetbox.maciekole.net/internal/models"
 )
@@ -11,6 +12,15 @@ type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
+}
+
+// Create a humanDate function which return a nicely formatted string repr of a time.Time object
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+var functions = template.FuncMap{
+	"humanDate": humanDate,
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -29,8 +39,8 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		// Parse the base template file into a template set.
-		templateSet, err := template.ParseFiles("./ui/html/base.tmpl.html")
+		// register template.FuncMap
+		templateSet, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl.html")
 		if err != nil {
 			return nil, err
 		}
