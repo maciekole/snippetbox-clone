@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/joho/godotenv"
+	"html/template"
 	"log"
 	"log/slog"
 	"net/http"
@@ -18,15 +19,16 @@ import (
 
 // Define application struct to hold the application-wide dependencies for the web app
 type application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
 	// load .env file
-	err := godotenv.Load(".env")
+	envErr := godotenv.Load(".env")
 
-	if err != nil {
+	if envErr != nil {
 		log.Fatalf("Error loading .env file")
 	}
 
@@ -75,10 +77,17 @@ func main() {
 		}
 	}(db)
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	// Init a new instance of application struct containing the dependencies
 	app := &application{
-		logger:   logger,
-		snippets: &models.SnippetModel{DB: db},
+		logger:        logger,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	//mux := http.NewServeMux()
